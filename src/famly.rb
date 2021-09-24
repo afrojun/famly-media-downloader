@@ -72,5 +72,3 @@ class Famly
     end
   end
 end
-
-Famly.new.fetch_data
