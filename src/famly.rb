@@ -6,12 +6,11 @@ require "json"
 require "net/http"
 
 class Famly
-  attr_reader :current_time, :feed_api
+  attr_reader :feed_api
 
   BASE_URL = "https://app.famly.co"
 
-  def initialize(feed_api: FeedApi.new, current_time: Time.now.utc.to_datetime.iso8601)
-    @current_time = current_time
+  def initialize(feed_api: FeedApi.new)
     @feed_api = feed_api
     @observation_ids = []
   end
@@ -23,7 +22,7 @@ class Famly
   private
 
   def get_observation_ids
-    paginated_feed do |item|
+    feed_api.paginated_feed do |item|
       @observation_ids.push(
         item.fetch("embed", {})&.fetch("observationId", nil)
       )
@@ -32,29 +31,42 @@ class Famly
     @observation_ids.compact
   end
 
-  def paginated_feed(before: current_time)
-    last_item_time = before
-
-    loop do
-      feed = feed_api.get(olderThan: last_item_time)
-      items = feed["feedItems"]
-
-      # break if items.none?
-      break if last_item_time < "2021-08-31T00:00:00+00:00"
-
-      items.each do |item|
-        yield item
-
-        last_item_time = item["createdDate"] if item["createdDate"] < last_item_time
-      end
-
-      puts last_item_time
-      sleep 1
-    end
-  end
-
   class FeedApi
+    attr_reader :before
+
     FEED_PATH = "/api/feed/feed/feed"
+    SLEEP_DURATION = 1.second
+
+    def initialize(before: current_time)
+      @before = before
+    end
+
+    def paginated_feed
+      last_item_time = before
+
+      loop do
+        feed = get(olderThan: last_item_time)
+        items = feed["feedItems"]
+
+        # break if items.none?
+        break if last_item_time < "2021-09-15T00:00:00+00:00"
+
+        items.each do |item|
+          yield item
+
+          last_item_time = item["createdDate"] if item["createdDate"] < last_item_time
+        end
+
+        puts last_item_time
+        sleep SLEEP_DURATION
+      end
+    end
+
+    private
+
+    def current_time
+      Time.now.utc.to_datetime.iso8601
+    end
 
     def get(params)
       uri = URI("#{BASE_URL}#{FEED_PATH}")
