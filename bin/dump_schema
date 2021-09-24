@@ -1,0 +1,6 @@
+#!/usr/bin/env ruby
+
+require "graphql/client"
+require_relative "../lib/famly/graphql"
+
+GraphQL::Client.dump_schema(Famly::Graphql::HTTP, "config/schema.json")

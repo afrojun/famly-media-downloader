@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require_relative "rest_api/feed"
-
 module Famly
   class MediaDownloader
     attr_reader :feed_api
