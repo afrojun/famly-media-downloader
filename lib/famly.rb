@@ -14,18 +14,7 @@ module Famly
     end
 
     def fetch_data
-      # observation_ids = get_observation_ids
-      observation_ids = [
-        "e7c5dc18-bcff-4c07-a5bf-715fbc87fb38",
-        "68e06722-0398-40b9-95f2-ec866104d574",
-        # "b6717977-8ea5-4cc6-a229-c7b10b14d275",
-        # "21b0f867-f415-4c98-bcd8-8a2b9440e14e",
-        # "a3516828-8a7f-4a4c-ba38-1a77c920a790",
-        # "e59bb851-1362-4b07-a952-b980f453a0ef",
-        # "b04211e9-0d06-42ef-883f-df8519e91b7a",
-      ]
-
-      # pp observation_ids
+      observation_ids = get_observation_ids
 
       result = GraphQL::Client.query(
         GraphQL::Queries::ObservationsByIds::Query::ObservationsByIds,
@@ -35,21 +24,21 @@ module Famly
       observations = result.data.child_development.observations.results
 
       observations.each do |observation|
-        puts "\n\nObservation: #{observation.id}"
-        pp "Images"
-        if observation.images
+        puts "----------\n\nObservation: #{observation.id}"
+        if observation.images && observation.images.any?
+          puts "\nImages\n"
           observation.images.each do |image|
             pp "#{image.secret.prefix}/#{image.secret.key}/2560x2560/#{image.secret.path}?expires=#{image.secret.expires}"
           end
         end
 
-        pp "Video"
         if observation.video
+          puts "\nVideo\n"
           pp observation.video.videoUrl
         end
 
-        pp "Files"
-        if observation.files
+        if observation.files && observation.files.any?
+          puts "\nFiles\n"
           observation.files.each do |file|
             pp file.url
           end
