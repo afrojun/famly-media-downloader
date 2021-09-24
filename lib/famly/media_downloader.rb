@@ -1,12 +1,12 @@
 # frozen_string_literal: true
 
-require_relative "feed_api"
+require_relative "rest_api/feed"
 
 module Famly
   class MediaDownloader
     attr_reader :feed_api
 
-    def initialize(feed_api: FeedApi.new)
+    def initialize(feed_api: RestApi::Feed.new)
       @feed_api = feed_api
       @observation_ids = []
     end
