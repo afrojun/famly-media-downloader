@@ -11,39 +11,24 @@ module Famly
     def initialize(feed_api: RestApi::Feed.new)
       @feed_api = feed_api
       @observation_ids = []
+      @image_urls = []
+      @video_urls = []
+      @file_urls = []
     end
 
     def fetch_data
-      observation_ids = get_observation_ids
+      obs_ids = get_observation_ids
 
-      result = GraphQL::Client.query(
-        GraphQL::Queries::ObservationsByIds::Query::ObservationsByIds,
-        variables: { observationIds: observation_ids },
-      )
+      obs_ids.each_slice(10) do |ids|
+        observations = get_observations(ids)
+        extract_media_urls(observations) if observations
 
-      observations = result.data.child_development.observations.results
-
-      observations.each do |observation|
-        puts "----------\n\nObservation: #{observation.id}"
-        if observation.images && observation.images.any?
-          puts "\nImages\n"
-          observation.images.each do |image|
-            pp "#{image.secret.prefix}/#{image.secret.key}/2560x2560/#{image.secret.path}?expires=#{image.secret.expires}"
-          end
-        end
-
-        if observation.video
-          puts "\nVideo\n"
-          pp observation.video.videoUrl
-        end
-
-        if observation.files && observation.files.any?
-          puts "\nFiles\n"
-          observation.files.each do |file|
-            pp file.url
-          end
-        end
+        sleep 0.5
       end
+
+      pp @image_urls
+      pp @video_urls
+      pp @file_urls
     end
 
     private
@@ -54,6 +39,44 @@ module Famly
       end
 
       @observation_ids.compact
+    end
+
+    def get_observations(observation_ids)
+      result = GraphQL::Client.query(
+        GraphQL::Queries::ObservationsByIds::Query::ObservationsByIds,
+        variables: { observationIds: observation_ids },
+      )
+
+      observations = result&.data&.child_development&.observations&.results
+
+      if !observations
+        pp result
+        []
+      else
+        observations
+      end
+    end
+
+    def extract_media_urls(observations)
+      observations.each do |observation|
+        puts observation.id
+
+        if observation.images && observation.images.any?
+          observation.images.each do |image|
+            @image_urls << "#{image.secret.prefix}/#{image.secret.key}/2560x2560/#{image.secret.path}?expires=#{image.secret.expires}"
+          end
+        end
+
+        if observation.video
+          @video_urls << observation.video.videoUrl
+        end
+
+        if observation.files && observation.files.any?
+          observation.files.each do |file|
+            @file_urls << file.url
+          end
+        end
+      end
     end
   end
 end
