@@ -23,9 +23,7 @@ class Famly
 
   def get_observation_ids
     feed_api.paginated_feed do |item|
-      @observation_ids.push(
-        item.fetch("embed", {})&.fetch("observationId", nil)
-      )
+      @observation_ids.push(item.dig("embed", "observationId"))
     end
 
     @observation_ids.compact
@@ -35,7 +33,7 @@ class Famly
     attr_reader :before
 
     FEED_PATH = "/api/feed/feed/feed"
-    SLEEP_DURATION = 1.second
+    SLEEP_DURATION = 1
 
     def initialize(before: current_time)
       @before = before
