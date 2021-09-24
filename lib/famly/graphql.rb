@@ -4,9 +4,9 @@ require "graphql/client"
 require "graphql/client/http"
 
 module Famly
-  module Graphql
+  module GraphQL
     # Configure GraphQL endpoint using the basic HTTP network adapter.
-    HTTP = GraphQL::Client::HTTP.new("https://app.famly.co/graphql") do
+    HTTP = ::GraphQL::Client::HTTP.new("https://app.famly.co/graphql") do
       def headers(context)
         {
           "x-famly-accesstoken": ENV.fetch("ACCESS_TOKEN")
@@ -14,8 +14,8 @@ module Famly
       end
     end
 
-    Schema = GraphQL::Client.load_schema("config/schema.json")
+    Schema = ::GraphQL::Client.load_schema("config/schema.json")
 
-    Client = GraphQL::Client.new(schema: Schema, execute: HTTP)
+    Client = ::GraphQL::Client.new(schema: Schema, execute: HTTP)
   end
 end
