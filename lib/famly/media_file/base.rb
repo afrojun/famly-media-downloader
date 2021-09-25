@@ -16,16 +16,19 @@ module Famly
       end
 
       def name
-        ActiveSupport::Inflector.parameterize(url)
+        date, id, extension = url.match(name_from_url_regex).captures
+        param_date = ActiveSupport::Inflector.parameterize(date)
+        param_id = ActiveSupport::Inflector.parameterize(id)
+
+        "#{type}_#{param_date}_#{param_id}.#{extension}"
       end
 
       def type
-        ActiveSupport::Inflector.parameterize(self.class.name)
+        ActiveSupport::Inflector.demodulize(self.class.name)
       end
 
       def download
         destination = File.join(".", "output", name)
-        puts "downloading #{type} from #{url} and moving to #{destination}"
         tempfile = Down.download(url)
         FileUtils.mv(tempfile.path, destination)
       end
@@ -40,6 +43,10 @@ module Famly
       protected
 
       attr_reader :file
+
+      def name_from_url_regex
+        raise NotImplementedError
+      end
     end
   end
 end

@@ -19,11 +19,11 @@ module Famly
 
     def fetch_data
       # obs_ids = get_observation_ids
-      obs_ids = ["e7c5dc18-bcff-4c07-a5bf-715fbc87fb38"]
+      obs_ids = ["a72bcad3-6980-4863-880d-873d81010b0b"]
 
       obs_ids.each_slice(10) do |ids|
         observations = get_observations(ids)
-        extract_media_urls(observations) if observations
+        extract_media_urls(observations) if observations.present?
 
         sleep 0.5
       end
@@ -32,7 +32,8 @@ module Famly
       pp @videos
       pp @files
 
-      @images.each { |i| i.download }
+      # @images.each { |i| i.download }
+      @videos.each { |i| i.download }
     end
 
     private
