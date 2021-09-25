@@ -3,6 +3,7 @@
 require_relative "famly/rest_api"
 require_relative "famly/graphql"
 require_relative "famly/graphql/queries"
+require_relative "famly/media_file"
 
 module Famly
   class MediaDownloader
@@ -11,13 +12,14 @@ module Famly
     def initialize(feed_api: RestApi::Feed.new)
       @feed_api = feed_api
       @observation_ids = []
-      @image_urls = []
-      @video_urls = []
-      @file_urls = []
+      @images = []
+      @videos = []
+      @files = []
     end
 
     def fetch_data
-      obs_ids = get_observation_ids
+      # obs_ids = get_observation_ids
+      obs_ids = ["e7c5dc18-bcff-4c07-a5bf-715fbc87fb38"]
 
       obs_ids.each_slice(10) do |ids|
         observations = get_observations(ids)
@@ -26,54 +28,51 @@ module Famly
         sleep 0.5
       end
 
-      pp @image_urls
-      pp @video_urls
-      pp @file_urls
+      pp @images
+      pp @videos
+      pp @files
+
+      @images.each { |i| i.download }
     end
 
     private
 
     def get_observation_ids
       feed_api.paginated_feed do |item|
-        @observation_ids.push(item.dig("embed", "observationId"))
+        observation_id = item.dig("embed", "observationId")
+        true if observation_id.present?
+        @observation_ids.push(observation_id)
       end
 
       @observation_ids.compact
     end
 
     def get_observations(observation_ids)
-      result = GraphQL::Client.query(
-        GraphQL::Queries::ObservationsByIds::Query::ObservationsByIds,
-        variables: { observationIds: observation_ids },
+      result = GraphQL::Queries.call(
+        :observations_by_ids,
+        variables: { observationIds: observation_ids }
       )
 
-      observations = result&.data&.child_development&.observations&.results
-
-      if !observations
-        pp result
-        []
-      else
-        observations
-      end
+      result&.child_development&.observations&.results
     end
 
     def extract_media_urls(observations)
       observations.each do |observation|
         puts observation.id
 
-        if observation.images && observation.images.any?
+        if observation.images.present?
           observation.images.each do |image|
-            @image_urls << "#{image.secret.prefix}/#{image.secret.key}/2560x2560/#{image.secret.path}?expires=#{image.secret.expires}"
+            @images << MediaFile::Image.new(image)
           end
         end
 
         if observation.video
-          @video_urls << observation.video.videoUrl
+          @videos << MediaFile::Video.new(observation.video)
         end
 
-        if observation.files && observation.files.any?
+        if observation.files.present?
           observation.files.each do |file|
-            @file_urls << file.url
+            @files << MediaFile::Base.new(file)
           end
         end
       end
