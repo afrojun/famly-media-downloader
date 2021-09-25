@@ -11,41 +11,27 @@ module Famly
 
     def initialize(feed_api: RestApi::Feed.new)
       @feed_api = feed_api
-      @observation_ids = []
-      @images = []
-      @videos = []
       @files = []
     end
 
-    def fetch_data
-      # obs_ids = get_observation_ids
-      obs_ids = ["a72bcad3-6980-4863-880d-873d81010b0b"]
+    def call
+      fetch_data
 
-      obs_ids.each_slice(10) do |ids|
-        observations = get_observations(ids)
-        extract_media_urls(observations) if observations.present?
-
-        sleep 0.5
-      end
-
-      pp @images
-      pp @videos
-      pp @files
-
-      # @images.each { |i| i.download }
-      @videos.each { |i| i.download }
+      @files.each(&:download)
     end
 
     private
 
-    def get_observation_ids
-      feed_api.paginated_feed do |item|
-        observation_id = item.dig("embed", "observationId")
-        true if observation_id.present?
-        @observation_ids.push(observation_id)
-      end
+    def fetch_data
+      obs_ids = feed_api.observation_ids
+      # obs_ids = ["a72bcad3-6980-4863-880d-873d81010b0b"]
 
-      @observation_ids.compact
+      obs_ids.each_slice(90) do |ids|
+        observations = get_observations(ids)
+        build_files_from_observations(observations) if observations.present?
+
+        sleep 0.5
+      end
     end
 
     def get_observations(observation_ids)
@@ -57,24 +43,22 @@ module Famly
       result&.child_development&.observations&.results
     end
 
-    def extract_media_urls(observations)
+    def build_files_from_observations(observations)
       observations.each do |observation|
         puts observation.id
 
         if observation.images.present?
           observation.images.each do |image|
-            @images << MediaFile::Image.new(image)
+            @files << MediaFile::Image.new(image)
           end
         end
 
         if observation.video
-          @videos << MediaFile::Video.new(observation.video)
+          @files << MediaFile::Video.new(observation.video)
         end
 
         if observation.files.present?
-          observation.files.each do |file|
-            @files << MediaFile::Base.new(file)
-          end
+          puts "\n\n**********\nALERT: File found in observation #{observation.id}\n**********\n\n"
         end
       end
     end
