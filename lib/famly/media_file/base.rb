@@ -7,6 +7,8 @@ require "fileutils"
 module Famly
   module MediaFile
     class Base
+      DEST_DIR = "output"
+
       def initialize(file)
         @file = file
       end
@@ -31,10 +33,14 @@ module Famly
         ActiveSupport::Inflector.demodulize(self.class.name)
       end
 
+      def destination
+        File.join(".", DEST_DIR, name)
+      end
+
       def download
-        destination = File.join(".", "output", name)
         tempfile = Down.download(url)
         FileUtils.mv(tempfile.path, destination)
+        post_process
       end
 
       def to_s
@@ -50,6 +56,10 @@ module Famly
 
       def name_from_url_regex
         raise NotImplementedError
+      end
+
+      def post_process
+        # Optional method to modify the media file after it is downloaded
       end
     end
   end
