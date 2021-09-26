@@ -16,11 +16,15 @@ module Famly
       end
 
       def name
-        date, id, extension = url.match(name_from_url_regex).captures
-        param_date = ActiveSupport::Inflector.parameterize(date)
-        param_id = ActiveSupport::Inflector.parameterize(id)
+        @name ||= begin
+          date, id, extension = url.match(name_from_url_regex).captures
+          param_date = ActiveSupport::Inflector.parameterize(date)
+          param_id = ActiveSupport::Inflector.parameterize(id)
 
-        "#{type}_#{param_date}_#{param_id}.#{extension}"
+          "#{type}_#{param_date}_#{param_id}.#{extension}"
+        rescue
+          "Error_#{type}_#{ActiveSupport::Inflector.parameterize(url.split("?").first)}"
+        end
       end
 
       def type

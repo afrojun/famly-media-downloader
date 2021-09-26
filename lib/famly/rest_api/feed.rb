@@ -36,8 +36,7 @@ module Famly
           feed = client.get(FEED_PATH, olderThan: last_item_time)
           items = feed["feedItems"]
 
-          # break if items.none?
-          break if last_item_time < "2021-06-15T00:00:00+00:00"
+          break if items.none?
 
           items.each do |item|
             yield Item.new(item)

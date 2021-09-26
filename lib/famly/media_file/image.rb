@@ -14,7 +14,7 @@ module Famly
       protected
 
       def name_from_url_regex
-        /archive\/(.*)\/images\/(.*\/.*)\.(.*)\?/
+        /archive\/(.*)\/images\/(.*\/?.*)\.(.*)\?/
       end
     end
   end
