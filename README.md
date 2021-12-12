@@ -1,8 +1,12 @@
 # Famly API
 
+This tool fetches photos via the Famly API to allow preserving of higher resolution versions of the photos that are shared via the app. It does not allow access to any data that is not already accessible by the authenticated user.
+
+## Notes
+
 BASE_URL = https://app.famly.co
 
-## GET /api/feed/feed/feed
+### GET /api/feed/feed/feed
 
 https://app.famly.co/api/feed/feed/feed?olderThan=2021-09-08T15%3A58%3A43%2B00%3A00
 https://app.famly.co/api/feed/feed/feed?olderThan=${URL encoded timestamp}
@@ -13,9 +17,9 @@ https://app.famly.co/api/feed/feed/feed?olderThan=${URL encoded timestamp}
 feedItems -> embed (can be null) -> observationId
 feedItems -> createdDate (for next page)
 
-## POST /graphql
+### POST /graphql
 
-### childDevelopment
+#### childDevelopment
 
 Cannot query by childIds or institutionIds - API returns an error
 Only observationIds works, so need to combine with feed API
@@ -72,14 +76,14 @@ query ObservationsByIds($observationIds: [ObservationId!]!) {
 }
 ```
 
-## Process
+### Process
 
-### Done
+#### Done
 
 - Query feed API with current time
 - Get the embedded observationIds if present
 
-### TODO
+#### TODO
 
 - Query childDevelopment GraphQL API with those IDs
 - Store raw information on images, videos and files in local files
