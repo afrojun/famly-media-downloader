@@ -1,6 +1,35 @@
-# Famly API
+# Famly Media Downloader
 
-This tool fetches photos via the Famly API to allow preserving of higher resolution versions of the photos that are shared via the app. It does not allow access to any data that is not already accessible by the authenticated user.
+This tool fetches photos via the Famly API to allow preserving of higher resolution versions of the photos that are shared via the app. It does not allow access to any data that is not already accessible by the authenticated user and is intended solely for personal archival use.
+
+## Install Ruby
+
+I prefer to manage Ruby versions using `asdf`, but you can also use `rbenv` if you prefer. We are currently using Ruby 2.7.5.
+
+## Set up API access
+
+Log in to the app in a browser and open the developer tools (Inspector). On the "Network" tab, filter for `graphql` API requests and look at the request headers. Find the one named `x-famly-accesstoken` and copy the value. Set `FAMLY_ACCESS_TOKEN` in your shell to allow the script to access the API. For example:
+
+```
+export FAMLY_ACCESS_TOKEN=de5be9ea-bf5b-4db5-802d-11681eae3cd0
+
+```
+
+## Download media
+
+Run the script to start downloading all media that has been shared with you.
+
+```
+bin/run
+```
+
+## Dump the GraphQL schema
+
+To update the cached GraphQL schema, run the dump script:
+
+```
+bin/dump_schema
+```
 
 ## Notes
 
