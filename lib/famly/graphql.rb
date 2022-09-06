@@ -9,7 +9,7 @@ module Famly
     HTTP = ::GraphQL::Client::HTTP.new("https://app.famly.co/graphql") do
       def headers(context)
         {
-          "x-famly-accesstoken": ENV.fetch("ACCESS_TOKEN")
+          "x-famly-accesstoken": ENV.fetch("FAMLY_ACCESS_TOKEN")
         }
       end
     end

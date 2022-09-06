@@ -14,7 +14,7 @@ module Famly
         uri.query = URI.encode_www_form(params)
 
         req = Net::HTTP::Get.new(uri)
-        req["x-famly-accesstoken"] = ENV.fetch("ACCESS_TOKEN")
+        req["x-famly-accesstoken"] = ENV.fetch("FAMLY_ACCESS_TOKEN")
         req["content-type"] = "application/json"
 
         res = Net::HTTP.start(uri.hostname, uri.port, use_ssl: true) do |http|
