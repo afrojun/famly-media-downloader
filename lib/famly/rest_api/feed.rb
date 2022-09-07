@@ -27,10 +27,12 @@ module Famly
       private
 
       def paginated_feed
-        loop do
-          last_item_time = db.select(:created_at).order(:created_at).limit(1).map { |o| o[:created_at] }.first || current_time
+        last_item_time = db.select(:created_at).order(:created_at).limit(1).map { |o| o[:created_at] }.first || current_time
 
-          break if last_item_time < Time.parse('2022-08-10')
+        loop do
+          puts "last_item_time: #{last_item_time}"
+
+          break if last_item_time < Time.parse('2022-01-01')
 
           feed = client.get(FEED_PATH, olderThan: last_item_time.utc.to_datetime.iso8601)
           items = feed["feedItems"]
@@ -41,7 +43,8 @@ module Famly
             yield Item.new(item)
           end
 
-          puts "last_item_time: #{last_item_time}"
+          last_item_time = Time.parse(items.last["createdDate"])
+
           sleep SLEEP_DURATION
         end
       end
