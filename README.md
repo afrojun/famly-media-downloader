@@ -12,7 +12,14 @@ Log in to the app in a browser and open the developer tools (Inspector). On the 
 
 ```
 export FAMLY_ACCESS_TOKEN=de5be9ea-bf5b-4db5-802d-11681eae3cd0
+```
 
+## Set up the local SQLite DB
+
+Create and setup the local SQLite DB by running:
+
+```
+bin/migrate
 ```
 
 ## Download media
@@ -25,7 +32,7 @@ bin/run
 
 ## Dump the GraphQL schema
 
-To update the cached GraphQL schema, run the dump script:
+This should not be necessary but if something breaks in future update the cached GraphQL schema:
 
 ```
 bin/dump_schema

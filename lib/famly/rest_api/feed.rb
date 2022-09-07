@@ -11,56 +11,43 @@ module Famly
       FEED_PATH = "/api/feed/feed/feed"
       SLEEP_DURATION = 1
 
-      def initialize(client: Client.new, db: ObservationsDb.new)
+      def initialize(client: Client.new, db: DB.from(:observations))
         @client = client
         @db = db
       end
 
-      def observation_ids
-        observation_ids = []
-
+      def get_observations
         paginated_feed do |item|
-          if item.observation_id.present?
-            observation_ids << item.observation_id
-            db.insert(item)
+          if item.observation? && db.where(id: item.observation_id).blank?
+            db.insert(id: item.observation_id, created_at: Time.parse(item.created_date))
           end
         end
-
-        observation_ids.compact
       end
 
-      def paginated_feed
-        last_item_time = processed_until
+      private
 
+      def paginated_feed
         loop do
-          feed = client.get(FEED_PATH, olderThan: last_item_time)
+          last_item_time = db.select(:created_at).order(:created_at).limit(1).map { |o| o[:created_at] }.first || current_time
+
+          break if last_item_time < Time.parse('2022-08-10')
+
+          feed = client.get(FEED_PATH, olderThan: last_item_time.utc.to_datetime.iso8601)
           items = feed["feedItems"]
 
           break if items.none?
 
           items.each do |item|
             yield Item.new(item)
-
-            last_item_time = item["createdDate"] if item["createdDate"] < last_item_time
           end
 
-          puts last_item_time
+          puts "last_item_time: #{last_item_time}"
           sleep SLEEP_DURATION
         end
       end
 
-      private
-
-      def processed_until
-        db.oldest_observation.fetch("created_at") { current_time }
-      end
-
-      def processed_from
-        db.latest_observation.fetch("created_at") { current_time }
-      end
-
       def current_time
-        Time.now.utc.to_datetime.iso8601
+        Time.now.utc
       end
     end
   end

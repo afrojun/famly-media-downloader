@@ -9,7 +9,8 @@ module Famly
     class Base
       DEST_DIR = "output"
 
-      def initialize(file)
+      def initialize(observation_id, file)
+        @observation_id = observation_id
         @file = file
       end
 
@@ -38,21 +39,39 @@ module Famly
       end
 
       def download
+        if db.where(name: name).present?
+          puts "Skipping #{name} as it's already downloaded..."
+          return
+        end
+
+        puts "Downloading #{name}..."
         tempfile = Down.download(url)
         FileUtils.mv(tempfile.path, destination)
         post_process
+
+        db.insert(
+          name: name,
+          type: type,
+          url: url,
+          observation_id: observation_id,
+          downloaded_at: Time.now.utc
+        )
+      end
+
+      def db
+        Famly::DB.from(:media_files)
       end
 
       def to_s
-        {
+        JSON.dump(
           name: name,
-          url: url,
-        }
+          url: url
+        )
       end
 
       protected
 
-      attr_reader :file
+      attr_reader :file, :observation_id
 
       def name_from_url_regex
         raise NotImplementedError

@@ -16,6 +16,10 @@ module Famly
       def created_date
         item["createdDate"]
       end
+
+      def observation?
+        observation_id.present?
+      end
     end
   end
 end

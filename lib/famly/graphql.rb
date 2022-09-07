@@ -7,7 +7,7 @@ module Famly
   module GraphQL
     # Configure GraphQL endpoint using the basic HTTP network adapter.
     HTTP = ::GraphQL::Client::HTTP.new("https://app.famly.co/graphql") do
-      def headers(context)
+      def headers(_context)
         {
           "x-famly-accesstoken": ENV.fetch("FAMLY_ACCESS_TOKEN")
         }
