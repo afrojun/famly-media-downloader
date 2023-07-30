@@ -4,7 +4,7 @@ This tool fetches photos via the Famly API to allow preserving of higher resolut
 
 ## Install Ruby
 
-I prefer to manage Ruby versions using `asdf`, but you can also use `rbenv` if you prefer. We are currently using Ruby 2.7.5.
+I prefer to manage Ruby versions using `asdf`, but you can also use `rbenv` if you prefer. We are currently using Ruby 3.2.2.
 
 ## Set up API access
 
