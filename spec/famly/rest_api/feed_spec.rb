@@ -3,12 +3,12 @@
 require_relative '../../spec_helper'
 
 RSpec.describe Famly::RestApi::Feed do
-  subject { described_class.new(client: client, db: db).get_observations }
+  subject { described_class.new(client:, db:).get_observations }
 
-  let(:client) { double(Famly::RestApi::Client) }
+  let(:client) { instance_double(Famly::RestApi::Client) }
   let(:db) { Famly::DB.from(:observations) }
   let(:current_time) { '2023-07-31T10:26:27+00:00' }
-  let(:feed_page_1) do
+  let(:feed_page1) do
     {
       'feedItems' => [
         {
@@ -26,7 +26,7 @@ RSpec.describe Famly::RestApi::Feed do
       ]
     }
   end
-  let(:feed_page_2) do
+  let(:feed_page2) do
     {
       'feedItems' => [
         {
@@ -51,48 +51,79 @@ RSpec.describe Famly::RestApi::Feed do
 
   before do
     stub_const("#{described_class}::SLEEP_DURATION", 0)
-
-    allow(client).to receive(:get).and_return(feed_page_1, feed_page_2, feed_page_3)
   end
 
-  context 'when the final page is empty' do
-    let(:feed_page_3) do
+  shared_examples_for 'extracts observations from feed' do |api_observations, db_observations|
+    it 'returns the observation IDs fetched from the API' do
+      expect(subject.map(&:observation_id)).to eq(api_observations)
+    end
+
+    it 'updates the DB with the observations' do
+      subject
+
+      expect(db.all.map { _1[:id] }).to eq(db_observations)
+    end
+  end
+
+  context 'when the DB has no observations' do
+    before do
+      allow(client).to receive(:get).and_return(feed_page1, feed_page2, feed_page3)
+    end
+
+    context 'when the final page is empty' do
+      let(:feed_page3) do
+        {
+          'feedItems' => []
+        }
+      end
+
+      it_behaves_like(
+        'extracts observations from feed',
+        %w[obs1-id obs2-id obs3-id obs4-id],
+        %w[obs1-id obs2-id obs3-id obs4-id]
+      )
+    end
+
+    context 'when the final page is has data older than the cutoff date' do
+      let(:feed_page3) do
+        {
+          'feedItems' => [
+            {
+              'embed' => {},
+              'createdDate' => '2022-07-27T07:16:37+00:00'
+            }
+          ]
+        }
+      end
+
+      it_behaves_like(
+        'extracts observations from feed',
+        %w[obs1-id obs2-id obs3-id obs4-id],
+        %w[obs1-id obs2-id obs3-id obs4-id]
+      )
+    end
+  end
+
+  context 'when the DB already has observations' do
+    let(:feed_page3) do
       {
         'feedItems' => []
       }
     end
 
-    it 'returns the observation IDs' do
-      expect(subject.map(&:observation_id)).to eq(%w[obs1-id obs2-id obs3-id obs4-id])
+    before do
+      item = Famly::RestApi::Item.new(feed_page1['feedItems'].last)
+      db.insert(id: item.observation_id, created_at: item.created_date)
+
+      # allow(client).to receive(:get).and_return(feed_page3)
+      allow(client).to receive(:get).with(
+        kind_of(String), olderThan: feed_page1['feedItems'].last['createdDate']
+      ).and_return(feed_page2)
+      allow(client).to receive(:get).with(
+        kind_of(String), olderThan: feed_page2['feedItems'].last['createdDate']
+      ).and_return(feed_page3)
     end
 
-    it 'updates the DB with the observations' do
-      subject
-
-      expect(db.all.map { _1[:id] }).to eq(%w[obs1-id obs2-id obs3-id obs4-id])
-    end
-  end
-
-  context 'when the final page is has data older than the cutoff date' do
-    let(:feed_page_3) do
-      {
-        'feedItems' => [
-          {
-            'embed' => {},
-            'createdDate' => '2022-07-27T07:16:37+00:00'
-          }
-        ]
-      }
-    end
-
-    it 'returns the observation IDs' do
-      expect(subject.map(&:observation_id)).to eq(%w[obs1-id obs2-id obs3-id obs4-id])
-    end
-
-    it 'updates the DB with the observations' do
-      subject
-
-      expect(db.all.map { _1[:id] }).to eq(%w[obs1-id obs2-id obs3-id obs4-id])
-    end
+    it_behaves_like 'extracts observations from feed', %w[obs3-id obs4-id], %w[obs2-id obs3-id obs4-id]
   end
 end

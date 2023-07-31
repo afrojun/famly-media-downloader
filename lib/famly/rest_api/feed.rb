@@ -37,7 +37,7 @@ module Famly
             item = Item.new(feed_item)
 
             if item.observation? && db.where(id: item.observation_id).blank?
-              db.insert(id: item.observation_id, created_at: Time.parse(item.created_date))
+              db.insert(id: item.observation_id, created_at: item.created_date)
               observation_items << item
             end
           end
