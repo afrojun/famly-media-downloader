@@ -10,11 +10,11 @@ module Famly
       end
 
       def observation_id
-        item.dig("embed", "observationId")
+        item.dig('embed', 'observationId')
       end
 
       def created_date
-        item["createdDate"]
+        item['createdDate']
       end
 
       def observation?

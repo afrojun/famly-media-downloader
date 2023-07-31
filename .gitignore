@@ -1,4 +1,4 @@
 output
 .idea
 famly_media_downloader*.db
-.env
+.env.local

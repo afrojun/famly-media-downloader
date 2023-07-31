@@ -1,14 +1,14 @@
 # frozen_string_literal: true
 
-require "csv"
-require "date"
+require 'csv'
+require 'date'
 
 module Famly
   module RestApi
     class Feed
       attr_reader :client, :db
 
-      FEED_PATH = "/api/feed/feed/feed"
+      FEED_PATH = '/api/feed/feed/feed'
       SLEEP_DURATION = 1
       CUTOFF_DATE = '2022-09-01'
 
@@ -27,9 +27,9 @@ module Famly
         last_item_time = db.select(:created_at).order(:created_at).limit(1).map { |o| o[:created_at] }.first || current_time
         observation_items = []
 
-        while(last_item_time > Time.parse(CUTOFF_DATE)) do
+        while (last_item_time > Time.parse(CUTOFF_DATE)) do
           feed = client.get(FEED_PATH, olderThan: last_item_time.utc.to_datetime.iso8601)
-          feed_items = feed["feedItems"]
+          feed_items = feed['feedItems']
 
           break if feed_items.none?
 
@@ -42,7 +42,7 @@ module Famly
             end
           end
 
-          last_item_time = Time.parse(feed_items.last["createdDate"])
+          last_item_time = Time.parse(feed_items.last['createdDate'])
           puts "last_item_time: #{last_item_time}"
 
           sleep SLEEP_DURATION

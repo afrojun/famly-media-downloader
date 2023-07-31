@@ -1,13 +1,13 @@
 # frozen_string_literal: true
 
-require "active_support/inflector"
-require "down"
-require "fileutils"
+require 'active_support/inflector'
+require 'down'
+require 'fileutils'
 
 module Famly
   module MediaFile
     class Base
-      DEST_DIR = "output"
+      DEST_DIR = 'output'
 
       def initialize(observation_id, file)
         @observation_id = observation_id
@@ -35,7 +35,7 @@ module Famly
       end
 
       def destination
-        File.join(".", DEST_DIR, name)
+        File.join('.', DEST_DIR, name)
       end
 
       def download

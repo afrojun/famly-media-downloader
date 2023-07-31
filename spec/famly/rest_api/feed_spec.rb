@@ -7,39 +7,39 @@ RSpec.describe Famly::RestApi::Feed do
 
   let(:client) { double(Famly::RestApi::Client) }
   let(:db) { Famly::DB.from(:observations) }
-  let(:current_time) { "2023-07-31T10:26:27+00:00" }
+  let(:current_time) { '2023-07-31T10:26:27+00:00' }
   let(:feed_page_1) do
     {
-      "feedItems" => [
+      'feedItems' => [
         {
-          "embed" => { "observationId" => "obs1-id" },
-          "createdDate" => "2023-07-30T12:36:27+00:00",
+          'embed' => { 'observationId' => 'obs1-id' },
+          'createdDate' => '2023-07-30T12:36:27+00:00'
         },
         {
-          "embed" => {},
-          "createdDate" => "2023-07-29T07:16:37+00:00",
+          'embed' => {},
+          'createdDate' => '2023-07-29T07:16:37+00:00'
         },
         {
-          "embed" => { "observationId" => "obs2-id" },
-          "createdDate" => "2023-07-29T07:05:25+00:00",
+          'embed' => { 'observationId' => 'obs2-id' },
+          'createdDate' => '2023-07-29T07:05:25+00:00'
         }
       ]
     }
   end
   let(:feed_page_2) do
     {
-      "feedItems" => [
+      'feedItems' => [
         {
-          "embed" => { "observationId" => "obs3-id" },
-          "createdDate" => "2023-07-28T12:36:27+00:00",
+          'embed' => { 'observationId' => 'obs3-id' },
+          'createdDate' => '2023-07-28T12:36:27+00:00'
         },
         {
-          "embed" => { "observationId" => "obs4-id" },
-          "createdDate" => "2023-07-26T07:05:25+00:00",
+          'embed' => { 'observationId' => 'obs4-id' },
+          'createdDate' => '2023-07-26T07:05:25+00:00'
         },
         {
-          "embed" => {},
-          "createdDate" => "2023-07-27T07:16:37+00:00",
+          'embed' => {},
+          'createdDate' => '2023-07-27T07:16:37+00:00'
         }
       ]
     }
@@ -58,7 +58,7 @@ RSpec.describe Famly::RestApi::Feed do
   context 'when the final page is empty' do
     let(:feed_page_3) do
       {
-        "feedItems" => []
+        'feedItems' => []
       }
     end
 
@@ -76,10 +76,10 @@ RSpec.describe Famly::RestApi::Feed do
   context 'when the final page is has data older than the cutoff date' do
     let(:feed_page_3) do
       {
-        "feedItems" => [
+        'feedItems' => [
           {
-            "embed" => {},
-            "createdDate" => "2022-07-27T07:16:37+00:00",
+            'embed' => {},
+            'createdDate' => '2022-07-27T07:16:37+00:00'
           }
         ]
       }
