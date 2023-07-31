@@ -19,7 +19,7 @@ export FAMLY_ACCESS_TOKEN=de5be9ea-bf5b-4db5-802d-11681eae3cd0
 Create and setup the local SQLite DB by running:
 
 ```
-bin/migrate
+bundle exec sequel -m db/migrations sqlite://famly_media_downloader.db
 ```
 
 ## Download media
