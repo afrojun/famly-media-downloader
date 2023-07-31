@@ -8,8 +8,9 @@ module Famly
   class MediaDownloader
     attr_reader :feed_api
 
-    def initialize(feed_api: RestApi::Feed.new)
+    def initialize(date_range: 1.year.ago..Time.now, feed_api: RestApi::Feed.new)
       @feed_api = feed_api
+      @date_range = date_range
       @files = []
     end
 

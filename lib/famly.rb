@@ -8,7 +8,6 @@ require_relative 'famly/graphql'
 require_relative 'famly/graphql/queries'
 require_relative 'famly/media_downloader'
 
-# Parent module
 module Famly
   Dotenv.load('.env.local', '.env')
 end

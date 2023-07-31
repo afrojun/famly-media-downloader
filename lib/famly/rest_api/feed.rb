@@ -24,10 +24,10 @@ module Famly
       private
 
       def paginated_feed
-        last_item_time = db.select(:created_at).order(:created_at).limit(1).map { |o| o[:created_at] }.first || current_time
+        last_item_time = oldest_observation_in_db || current_time
         observation_items = []
 
-        while (last_item_time > Time.parse(CUTOFF_DATE)) do
+        while last_item_time > Time.parse(CUTOFF_DATE)
           feed = client.get(FEED_PATH, olderThan: last_item_time.utc.to_datetime.iso8601)
           feed_items = feed['feedItems']
 
@@ -49,6 +49,10 @@ module Famly
         end
 
         observation_items
+      end
+
+      def oldest_observation_in_db
+        db.select(:created_at).order(:created_at).limit(1).map { |o| o[:created_at] }.first
       end
 
       def current_time

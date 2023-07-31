@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 ruby '3.2.2'
 
 source 'https://rubygems.org'
@@ -16,5 +17,7 @@ end
 
 group :test do
   gem 'rspec'
+  gem 'rubocop-rspec', require: false
+  gem 'rubocop-sequel', require: false
   gem 'timecop'
 end
