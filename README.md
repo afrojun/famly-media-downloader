@@ -30,6 +30,14 @@ Run the script to start downloading all media that has been shared with you.
 bin/run
 ```
 
+## Testing
+
+Run the tests using RSpec:
+
+```
+bundle exec rspec
+```
+
 ## Dump the GraphQL schema
 
 This should not be necessary but if something breaks in future update the cached GraphQL schema:

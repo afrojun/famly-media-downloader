@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require "dotenv/load"
+
 require_relative "famly/database"
 require_relative "famly/rest_api"
 require_relative "famly/graphql"
