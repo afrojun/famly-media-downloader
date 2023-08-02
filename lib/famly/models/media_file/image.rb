@@ -6,11 +6,15 @@ module Famly
   module MediaFile
     class Image < Base
       def url
-        "#{file.secret.prefix}" \
-          "/#{file.secret.key}" \
+        secret = file['secret']
+
+        return if secret.blank?
+
+        "#{secret['prefix']}" \
+          "/#{secret['key']}" \
           '/2560x2560'\
-          "/#{file.secret.path}" \
-          "?expires=#{file.secret.expires}"
+          "/#{secret['path']}" \
+          "?expires=#{secret['expires']}"
       end
 
       protected
@@ -29,7 +33,7 @@ module Famly
       end
 
       def name_from_url_regex
-        /archive\/(.*)\/images\/(.*\/?.*)\.(.*)\?/
+        %r{archive/(.*)/images/(.*/?.*)\.(.*)\?}
       end
     end
   end

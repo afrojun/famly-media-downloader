@@ -1,72 +1,68 @@
 # frozen_string_literal: true
 
-require_relative 'media_file/base'
-require_relative 'media_file/image'
-require_relative 'media_file/video'
+require_relative 'models'
 
 module Famly
   class MediaDownloader
-    attr_reader :feed_api
+    attr_reader :start_time, :end_time, :logger, :feed_api
 
-    def initialize(date_range: 1.year.ago..Time.now, feed_api: RestApi::Feed.new)
-      @feed_api = feed_api
-      @date_range = date_range
-      @files = []
+    SLEEP_DURATION = 0.5
+
+    def initialize(start_time: nil, end_time: nil)
+      @start_time = start_time.presence || 1.year.ago.iso8601
+      @end_time = oldest_observation_in_db.presence || end_time.presence || Time.now.utc.iso8601
+      @feed_api = RestApi::Feed.new(start_time: Time.parse(@start_time), end_time: Time.parse(@end_time))
     end
 
     def call
-      fetch_data
-
-      @files.each(&:download)
+      # Fetch all Observations using the REST API
+      store_observations
+      store_observation_raw_data
+      create_media_files_from_observations
+      # download_media_files
+      # process_media_files
+      # @files.each(&:download)
     end
 
     private
 
-    def db
-      Famly::DB.from(:observations)
+    def store_observations
+      observation_items = feed_api.fetch_observation_items
+
+      observation_items.each do |observation_item|
+        next if Models::Observation.where(id: observation_item.observation_id).present?
+
+        Models::Observation.create(
+          id: observation_item.observation_id,
+          posted_at: observation_item.created_date
+        )
+      end
     end
 
-    def fetch_data
-      # Fetch all Observations using the REST API
-      feed_api.get_observations
-      obs_ids = db.select(:id).where(processed_at: nil).map { |o| o[:id] }
-
+    def store_observation_raw_data
       # Iterate through all the Observations to extract media attachments
-      obs_ids.each_slice(90) do |ids|
-        gql_observations = get_observations(ids)
-        build_files_from_observations(gql_observations) if gql_observations.present?
+      Models::Observation.where(raw_data: nil).each_slice(90) do |observations|
+        observations_by_id = observations.index_by(&:id)
 
-        sleep 0.5
+        gql_observations = GraphQL::Queries.get_observations(observations_by_id.keys)
+
+        gql_observations.each do |gql_observation|
+          observation = observations_by_id[gql_observation.id]
+          observation.update(raw_data: gql_observation.to_h.with_indifferent_access, variant: gql_observation.variant)
+        end
+
+        sleep SLEEP_DURATION
       end
     end
 
-    def get_observations(observation_ids)
-      result = GraphQL::Queries.call(
-        :observations_by_ids,
-        variables: { observationIds: observation_ids }
-      )
-
-      result&.child_development&.observations&.results
+    def create_media_files_from_observations
+      Models::Observation.each do |observation|
+        Models::MediaFile.create_from_observation(observation)
+      end
     end
 
-    def build_files_from_observations(gql_observations)
-      gql_observations.each do |gql_observation|
-        if gql_observation.images.present?
-          gql_observation.images.each do |image|
-            @files << MediaFile::Image.new(gql_observation.id, image)
-          end
-        end
-
-        if gql_observation.video
-          @files << MediaFile::Video.new(gql_observation.id, gql_observation.video)
-        end
-
-        if gql_observation.files.present?
-          puts "\n\n**********\nALERT: File found in observation #{gql_observation.id}\n**********\n\n"
-        end
-
-        db.where(id: gql_observation.id).update(processed_at: Time.now.utc)
-      end
+    def oldest_observation_in_db
+      Famly::Models::Observation.min { posted_at }
     end
   end
 end

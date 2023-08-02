@@ -6,16 +6,23 @@ require 'fileutils'
 
 module Famly
   module MediaFile
+    class Error < StandardError; end
+
     class Base
       DEST_DIR = 'output'
 
-      def initialize(observation_id, file)
-        @observation_id = observation_id
+      attr_reader :file
+
+      def initialize(file)
         @file = file
       end
 
+      def id
+        file['id']
+      end
+
       def url
-        file.url
+        file['url']
       end
 
       def name
@@ -25,13 +32,17 @@ module Famly
           param_id = ActiveSupport::Inflector.parameterize(id)
 
           "#{type}_#{param_date}_#{param_id}.#{extension}"
-        rescue
-          "Error_#{type}_#{ActiveSupport::Inflector.parameterize(url.split("?").first)}"
+        rescue StandardError
+          nil
         end
       end
 
       def type
         ActiveSupport::Inflector.demodulize(self.class.name)
+      end
+
+      def raw_data
+        file
       end
 
       def destination
@@ -53,7 +64,6 @@ module Famly
           name: name,
           type: type,
           url: url,
-          observation_id: observation_id,
           downloaded_at: Time.now.utc
         )
       end
@@ -70,8 +80,6 @@ module Famly
       end
 
       protected
-
-      attr_reader :file, :observation_id
 
       def name_from_url_regex
         raise NotImplementedError

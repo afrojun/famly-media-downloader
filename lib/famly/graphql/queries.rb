@@ -5,12 +5,8 @@ require_relative 'queries/observations_by_ids'
 module Famly
   module GraphQL
     module Queries
-      QUERY = {
-        observations_by_ids: ObservationsByIds::Query::ObservationsByIds
-      }
-
       def self.call(query, variables: {})
-        response = Client.query(QUERY[query], variables: variables)
+        response = Client.query(query, variables: variables)
 
         result = response&.data
 
@@ -21,6 +17,16 @@ module Famly
           result
         end
       end
+
+      def self.get_observations(observation_ids)
+        result = call(
+          ObservationsByIds::Query::ObservationsByIds,
+          variables: { observationIds: observation_ids }
+        )
+
+        result&.child_development&.observations&.results
+      end
+
     end
   end
 end
