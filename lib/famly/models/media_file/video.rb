@@ -4,7 +4,7 @@ module Famly
   module MediaFile
     class Video < Base
       def url
-        file['video_url']
+        file['videoUrl']
       end
 
       protected

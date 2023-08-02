@@ -12,6 +12,7 @@ Sequel.migration do
       Time :created_at, null: false
       Time :updated_at, null: false
       Time :downloaded_at
+      Time :processed_at
     end
   end
 end

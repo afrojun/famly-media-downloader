@@ -8,12 +8,12 @@ gem 'activesupport'
 gem 'down', '~> 5.0'
 gem 'graphql-client'
 gem 'mini_exiftool'
+gem 'pry'
 gem 'sequel'
 gem 'sqlite3'
 
 group :development, :test do
   gem 'dotenv'
-  gem 'pry'
   gem 'rubocop', require: false
 end
 

@@ -2,3 +2,5 @@ output
 .idea
 famly_media_downloader*.db
 .env.local
+.DS_Store
+tmp

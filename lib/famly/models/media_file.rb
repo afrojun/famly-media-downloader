@@ -59,6 +59,12 @@ module Famly
         end
       end
 
+      def reset_data
+        file = "::Famly::MediaFile::#{type}".constantize.new(raw_data)
+
+        update(name: file.name, url: file.url)
+      end
+
       def download
         puts "Downloading #{name}..."
         destination = File.join('.', DEST_DIR, name)
@@ -66,6 +72,22 @@ module Famly
         FileUtils.mv(tempfile.path, destination)
 
         update(downloaded_at: Time.now.utc)
+      end
+
+      def post_process
+        puts "Updating EXIF data for #{name}..."
+        # Set the EXIF data in the image to ensure that it is sorted correctly
+        created_date = observation.posted_at
+
+        file = File.join('.', DEST_DIR, name)
+        exif_data = MiniExiftool.new file
+        exif_data.date_time_original = created_date
+        exif_data.create_date = created_date
+        exif_data.modify_date = created_date
+        exif_data.creation_time = created_date
+        exif_data.save
+
+        update(processed_at: Time.now.utc)
       end
     end
   end
