@@ -49,7 +49,9 @@ brew install exiftool
 
 ### Get a token for API access
 
-Log in to the app in a browser and open the developer tools (Inspector). On the "Network" tab, filter for `graphql` API requests and look at the request headers. Find the one named `x-famly-accesstoken` and copy the value. 
+Log in to the app in a browser and open the developer tools (Inspector). On the "Network" tab, filter for `graphql` API requests and look at the request headers. Find the one named `x-famly-accesstoken` and copy the value.
+
+![screenshot](https://github.com/afrojun/famly-media-downloader/assets/1935642/7a16c328-fcdf-44b6-add0-d6ecea93fdce)
 
 Create a new file `.env.local` in the root directory of the project and set `FAMLY_ACCESS_TOKEN` to the value you got above. This will allow the script to access the API. 
 
