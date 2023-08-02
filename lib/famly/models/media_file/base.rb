@@ -1,16 +1,12 @@
 # frozen_string_literal: true
 
 require 'active_support/inflector'
-require 'down'
-require 'fileutils'
 
 module Famly
   module MediaFile
     class Error < StandardError; end
 
     class Base
-      DEST_DIR = 'output'
-
       attr_reader :file
 
       def initialize(file)
@@ -43,33 +39,6 @@ module Famly
 
       def raw_data
         file
-      end
-
-      def destination
-        File.join('.', DEST_DIR, name)
-      end
-
-      def download
-        if db.where(name:).present?
-          puts "Skipping #{name} as it's already downloaded..."
-          return
-        end
-
-        puts "Downloading #{name}..."
-        tempfile = Down.download(url)
-        FileUtils.mv(tempfile.path, destination)
-        post_process
-
-        db.insert(
-          name:,
-          type:,
-          url:,
-          downloaded_at: Time.now.utc
-        )
-      end
-
-      def db
-        Famly::DB.from(:media_files)
       end
 
       def to_s

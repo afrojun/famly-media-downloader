@@ -107,6 +107,9 @@ RSpec.describe Famly::MediaDownloader do
         Famly::GraphQL::Queries::ObservationsByIds::Query::ObservationsByIds,
         variables: { observationIds: %w[obs1-id obs2-id] }
       ).and_return(graphql_response)
+
+    allow(Down).to receive(:download).twice.and_return(Tempfile.new('media_file'))
+    allow(FileUtils).to receive(:mv).twice
   end
 
   context 'when the DB has no observations' do
@@ -119,6 +122,12 @@ RSpec.describe Famly::MediaDownloader do
 
       expect(Famly::Models::Observation.all.map { _1[:id] }).to eq(%w[obs1-id obs2-id])
       expect(Famly::Models::MediaFile.all.map { _1[:id] }).to eq(%w[image-1 image-2])
+    end
+
+    it 'downloads the media files' do
+      media_downloader
+
+      expect(Famly::Models::MediaFile.all.map { _1[:downloaded_at] }.compact.size).to eq(2)
     end
   end
 

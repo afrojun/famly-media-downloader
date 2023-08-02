@@ -19,7 +19,7 @@ module Famly
       store_observations
       store_observation_raw_data
       create_media_files_from_observations
-      # download_media_files
+      download_media_files
       # process_media_files
       # @files.each(&:download)
     end
@@ -59,6 +59,10 @@ module Famly
       Models::Observation.each do |observation|
         Models::MediaFile.create_from_observation(observation)
       end
+    end
+
+    def download_media_files
+      Models::MediaFile.where(downloaded_at: nil).each(&:download)
     end
 
     def oldest_observation_in_db

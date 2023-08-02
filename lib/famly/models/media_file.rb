@@ -5,6 +5,9 @@ require_relative 'media_file/file'
 require_relative 'media_file/image'
 require_relative 'media_file/video'
 
+require 'down'
+require 'fileutils'
+
 module Famly
   module Models
     class MediaFile < Sequel::Model
@@ -40,22 +43,29 @@ module Famly
         files << ::Famly::MediaFile::Video.new(raw_data['video']) if raw_data['video']
 
         if raw_data['files'].present?
-          puts "\n\n**********\nALERT: File found in observation #{observation.id}\n**********\n\n"
           raw_data['files'].each do |file|
             files << ::Famly::MediaFile::File.new(file)
           end
         end
 
         files.each do |file|
-          create(
-            id: file.id,
-            name: file.name,
-            type: file.type,
-            url: file.url,
-            raw_data: file.raw_data,
-            observation_id: observation.id
-          )
+          find_or_create(id: file.id) do |f|
+            f.name = file.name
+            f.type = file.type
+            f.url = file.url
+            f.raw_data = file.raw_data
+            f.observation_id = observation.id
+          end
         end
+      end
+
+      def download
+        puts "Downloading #{name}..."
+        destination = File.join('.', DEST_DIR, name)
+        tempfile = Down.download(url)
+        FileUtils.mv(tempfile.path, destination)
+
+        update(downloaded_at: Time.now.utc)
       end
     end
   end
