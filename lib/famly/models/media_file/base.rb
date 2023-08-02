@@ -50,7 +50,7 @@ module Famly
       end
 
       def download
-        if db.where(name: name).present?
+        if db.where(name:).present?
           puts "Skipping #{name} as it's already downloaded..."
           return
         end
@@ -61,9 +61,9 @@ module Famly
         post_process
 
         db.insert(
-          name: name,
-          type: type,
-          url: url,
+          name:,
+          type:,
+          url:,
           downloaded_at: Time.now.utc
         )
       end
@@ -74,8 +74,8 @@ module Famly
 
       def to_s
         JSON.dump(
-          name: name,
-          url: url
+          name:,
+          url:
         )
       end
 

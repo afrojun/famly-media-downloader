@@ -66,7 +66,7 @@ RSpec.describe Famly::RestApi::Feed do
       end
 
       it 'returns the observation IDs fetched from the API' do
-        expect(subject.map(&:observation_id)).to eq(%w[obs1-id obs2-id obs3-id obs4-id])
+        expect(observation_items.map(&:observation_id)).to eq(%w[obs1-id obs2-id obs3-id obs4-id])
       end
     end
 

@@ -44,7 +44,7 @@ RSpec.describe Famly::Models::Observation do
     before { observation }
 
     it 'saves raw_data as a JSON string and can be read back as a Hash' do
-      observation.update(raw_data: raw_data)
+      observation.update(raw_data:)
       db_observation = described_class.last
       expect(db_observation[:raw_data]).to eq(JSON.dump(raw_data))
       expect(db_observation.raw_data).to eq(raw_data)
@@ -52,12 +52,12 @@ RSpec.describe Famly::Models::Observation do
 
     it 'changes the updated_at timestamp on updated Observation records' do
       Timecop.freeze(60)
-      expect { observation.update(raw_data: raw_data) }.to(change(observation, :updated_at))
+      expect { observation.update(raw_data:) }.to(change(observation, :updated_at))
     end
 
     it 'does not change the created_at timestamp on updated Observation records' do
       Timecop.freeze(60)
-      expect { observation.update(raw_data: raw_data) }.not_to(change(observation, :created_at))
+      expect { observation.update(raw_data:) }.not_to(change(observation, :created_at))
     end
   end
 end

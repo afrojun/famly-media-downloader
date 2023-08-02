@@ -28,7 +28,7 @@ RSpec.describe Famly::MediaDownloader do
       ]
     }
   end
-  let(:empty_feed) {  { 'feedItems' => [] } }
+  let(:empty_feed) { { 'feedItems' => [] } }
   let(:graphql_response) do
     OpenStruct.new(
       data: OpenStruct.new(

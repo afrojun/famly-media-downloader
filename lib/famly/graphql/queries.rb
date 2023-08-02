@@ -6,7 +6,7 @@ module Famly
   module GraphQL
     module Queries
       def self.call(query, variables: {})
-        response = Client.query(query, variables: variables)
+        response = Client.query(query, variables:)
 
         result = response&.data
 
@@ -26,7 +26,6 @@ module Famly
 
         result&.child_development&.observations&.results
       end
-
     end
   end
 end

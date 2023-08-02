@@ -2,7 +2,7 @@
 
 require 'dotenv'
 require 'active_support'
-require "active_support/core_ext"
+require 'active_support/core_ext'
 
 require_relative 'famly/database'
 require_relative 'famly/rest_api'

@@ -42,7 +42,7 @@ RSpec.describe Famly::Models::MediaFile do
     let(:video) { nil }
 
     before do
-      observation.update(raw_data: raw_data)
+      observation.update(raw_data:)
     end
 
     context 'when no attached files are present' do

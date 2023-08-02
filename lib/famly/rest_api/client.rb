@@ -22,7 +22,7 @@ module Famly
           http.request(req)
         end
 
-        res.is_a?(Net::HTTPSuccess) ?  JSON.parse(res.body) : {}
+        res.is_a?(Net::HTTPSuccess) ? JSON.parse(res.body) : {}
       end
     end
   end
