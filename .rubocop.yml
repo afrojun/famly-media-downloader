@@ -24,3 +24,9 @@ Style/HashSyntax:
 
 RSpec/MultipleMemoizedHelpers:
   Max: 10
+
+RSpec/MultipleExpectations:
+  Enabled: false
+
+Metrics/MethodLength:
+  Max: 25
