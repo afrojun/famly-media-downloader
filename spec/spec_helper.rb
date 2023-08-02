@@ -19,6 +19,7 @@
 ENV['RACK_ENV'] = 'test'
 
 require 'timecop'
+require 'active_support'
 require_relative '../lib/famly'
 
 RSpec.configure do |config|

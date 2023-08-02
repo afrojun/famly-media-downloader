@@ -3,6 +3,7 @@ ruby '3.2.2'
 
 source 'https://rubygems.org'
 
+gem 'activesupport'
 gem 'down', '~> 5.0'
 gem 'graphql-client'
 gem 'mini_exiftool'
